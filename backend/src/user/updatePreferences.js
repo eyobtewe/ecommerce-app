@@ -1,6 +1,6 @@
 const { APIGatewayProxyHandler } = require("aws-lambda");
-const { dynamoDBClient } = require("../shared/dynamodbClient");
-const { UpdateItemCommand } = require("@aws-sdk/client-dynamodb");
+const { docClient } = require("../shared/dynamodbClient");
+const { UpdateCommand } = require("@aws-sdk/lib-dynamodb");
 
 exports.handler = async (event) => {
   // const dynamoDBClient = new DynamoDBClient({
@@ -13,12 +13,12 @@ exports.handler = async (event) => {
     const body = JSON.parse(event.body || "{}");
     const categories = body.preferredCategories || [];
 
-    await dynamoDBClient.send(new UpdateItemCommand({
+    await docClient.send(new UpdateCommand({
       TableName: process.env.USERS_TABLE,
-      Key: { userId: { S: userId } },
+      Key: { userId },
       UpdateExpression: "SET preferredCategories = :cats",
       ExpressionAttributeValues: {
-        ":cats": { L: categories.map((c) => ({ S: c })) }
+        ":cats": categories
       }
     }));
 

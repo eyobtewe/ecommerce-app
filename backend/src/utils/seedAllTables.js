@@ -5,18 +5,18 @@ const { faker } = require("@faker-js/faker");
 const { v4: uuidv4 } = require("uuid");
 const { dynamoDBClient } = require("../shared/dynamodbClient");
 
-const PRODUCTS_TABLE = process.env.PRODUCTS_TABLE;
-const CART_TABLE = process.env.CART_TABLE;
-const ORDERS_TABLE = process.env.ORDERS_TABLE;
-const USERS_TABLE = process.env.USERS_TABLE;
-const REVIEWS_TABLE = process.env.REVIEWS_TABLE;
+const PRODUCTS_TABLE = process.env.PRODUCTS_TABLE || "ecommerce-prod-products";
+const CART_TABLE = process.env.CART_TABLE || "ecommerce-prod-cart";
+const ORDERS_TABLE = process.env.ORDERS_TABLE || "ecommerce-prod-orders";
+const USERS_TABLE = process.env.USERS_TABLE || "ecommerce-prod-users";
+const REVIEWS_TABLE = process.env.REVIEWS_TABLE || "ecommerce-prod-reviews";
 
 exports.handler = async () => {
   console.log("🔁 Seeding started");
 
-  const products = await seedProducts(30);
-  const users = await seedUsers(15, products);
-  await seedReviews(20, users, products);
+  const products = await seedProducts(50);
+  const users = await seedUsers(10, products);
+  await seedReviews(15, users, products);
 
   console.log("✅ Seeding complete");
   return {
@@ -54,7 +54,7 @@ async function seedUsers(count, products) {
   for (let i = 0; i < count; i++) {
     const userId = uuidv4();
     const user = {
-      id: userId,
+      userId: userId,
       email: faker.internet.email(),
       preferredCategories: [
         faker.commerce.department(),
@@ -111,7 +111,7 @@ async function seedOrders(userId, products) {
 
     const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
     const order = {
-      id: uuidv4(),
+      orderId: uuidv4(),
       userId,
       items,
       status: faker.helpers.arrayElement(["pending", "shipped", "delivered"]),
@@ -133,7 +133,7 @@ async function seedReviews(count, users, products) {
 
     const review = {
       id: uuidv4(),
-      userId: user.id,
+      userId: user.userId,
       productId: product.id,
       rating: faker.number.int({ min: 1, max: 5 }),
       comment: faker.lorem.sentences(2),
@@ -147,3 +147,5 @@ async function seedReviews(count, users, products) {
     console.log(`⭐ Review by ${user.email} for ${product.name}`);
   }
 }
+
+exports.handler();

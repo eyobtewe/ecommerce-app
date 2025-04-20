@@ -1,6 +1,7 @@
 const { APIGatewayProxyHandler } = require("aws-lambda");
-const { dynamoDBClient } = require("../shared/dynamodbClient");
-const { PutItemCommand } = require("@aws-sdk/client-dynamodb");
+const { docClient } = require("../shared/dynamodbClient");
+const { PutCommand } = require("@aws-sdk/lib-dynamodb");
+const { v4: uuidv4 } = require("uuid");
 
 exports.handler = async (event) => {
   // const dynamoDBClient = new DynamoDBClient({
@@ -23,6 +24,7 @@ exports.handler = async (event) => {
     }
 
     const review = {
+      id: uuidv4(),
       productId,
       userId,
       rating,
@@ -30,16 +32,10 @@ exports.handler = async (event) => {
       createdAt: new Date().toISOString(),
     };
 
-    await dynamoDBClient.send(
-      new PutItemCommand({
+    await docClient.send(
+      new PutCommand({
         TableName: process.env.REVIEWS_TABLE,
-        Item: {
-          productId: { S: review.productId },
-          userId: { S: review.userId },
-          rating: { N: review.rating.toString() },
-          comment: { S: review.comment },
-          createdAt: { S: review.createdAt },
-        },
+        Item: review
       })
     );
 

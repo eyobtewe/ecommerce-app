@@ -1,26 +1,37 @@
-const { ScanCommand } = require("@aws-sdk/client-dynamodb");
-const { dynamoDBClient } = require("../shared/dynamodbClient");
+const { ScanCommand } = require("@aws-sdk/lib-dynamodb");
+const { docClient } = require("../shared/dynamodbClient");
 
-exports.handler = async () => {
+exports.handler = async (event) => {
   // const dynamoDBClient = new DynamoDBClient({
   //   region: process.env.AWS_REGION || "us-east-1",
   // });
   try {
-    const result = await dynamoDBClient.send(new ScanCommand({
-      TableName: process.env.PRODUCTS_TABLE
+    const queryParams = event.queryStringParameters || {};
+    const limit = parseInt(queryParams.limit) || 5;
+    const lastEvaluatedKey = queryParams.lastEvaluatedKey ?
+      JSON.parse(decodeURIComponent(queryParams.lastEvaluatedKey)) : undefined;
+
+    const result = await docClient.send(new ScanCommand({
+      TableName: process.env.PRODUCTS_TABLE,
+      Limit: limit,
+      ExclusiveStartKey: lastEvaluatedKey
     }));
 
     const items = result.Items || [];
     const sorted = items
-      .filter((p) => p.isActive?.BOOL !== false)
+      .filter((p) => p.isActive !== false)
       .sort((a, b) =>
-        (parseInt(b.timesOrdered?.N || "0") - parseInt(a.timesOrdered?.N || "0"))
-      )
-      .slice(0, 5);
+        ((b.timesOrdered || 0) - (a.timesOrdered || 0))
+      );
 
     return {
       statusCode: 200,
-      body: JSON.stringify(sorted),
+      body: JSON.stringify({
+        items: sorted,
+        lastEvaluatedKey: result.LastEvaluatedKey ?
+          encodeURIComponent(JSON.stringify(result.LastEvaluatedKey)) : null,
+        hasMore: !!result.LastEvaluatedKey
+      }),
     };
   } catch (error) {
     console.error("Error getting popular products:", error);

@@ -95,27 +95,49 @@ resource "aws_api_gateway_resource" "products_similar" {
   path_part   = "similar"
 }
 
-resource "aws_api_gateway_resource" "products_similar_id" {
-  rest_api_id = aws_api_gateway_rest_api.ecommerce_api.id
-  parent_id   = aws_api_gateway_resource.products_similar.id
-  path_part   = "{id}"
-}
-
 resource "aws_api_gateway_method" "get_similar_products" {
   rest_api_id   = aws_api_gateway_rest_api.ecommerce_api.id
-  resource_id   = aws_api_gateway_resource.products_similar_id.id
+  resource_id   = aws_api_gateway_resource.products_similar.id
   http_method   = "GET"
   authorization = "NONE"
 }
 
 resource "aws_api_gateway_integration" "get_similar_products_integration" {
   rest_api_id             = aws_api_gateway_rest_api.ecommerce_api.id
-  resource_id             = aws_api_gateway_resource.products_similar_id.id
+  resource_id             = aws_api_gateway_resource.products_similar.id
   http_method             = aws_api_gateway_method.get_similar_products.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.getSimilarProducts.invoke_arn
 }
+
+# resource "aws_api_gateway_resource" "products_similar" {
+#   rest_api_id = aws_api_gateway_rest_api.ecommerce_api.id
+#   parent_id   = aws_api_gateway_resource.products.id
+#   path_part   = "similar"
+# }
+
+# resource "aws_api_gateway_resource" "products_similar_id" {
+#   rest_api_id = aws_api_gateway_rest_api.ecommerce_api.id
+#   parent_id   = aws_api_gateway_resource.products_similar.id
+#   path_part   = "{id}"
+# }
+
+# resource "aws_api_gateway_method" "get_similar_products" {
+#   rest_api_id   = aws_api_gateway_rest_api.ecommerce_api.id
+#   resource_id   = aws_api_gateway_resource.products_similar_id.id
+#   http_method   = "GET"
+#   authorization = "NONE"
+# }
+
+# resource "aws_api_gateway_integration" "get_similar_products_integration" {
+#   rest_api_id             = aws_api_gateway_rest_api.ecommerce_api.id
+#   resource_id             = aws_api_gateway_resource.products_similar_id.id
+#   http_method             = aws_api_gateway_method.get_similar_products.http_method
+#   integration_http_method = "POST"
+#   type                    = "AWS_PROXY"
+#   uri                     = aws_lambda_function.getSimilarProducts.invoke_arn
+# }
 
 # /reviews
 resource "aws_api_gateway_resource" "reviews" {

@@ -1,6 +1,6 @@
 const { APIGatewayProxyHandler } = require("aws-lambda");
-const { dynamoDBClient } = require("../shared/dynamodbClient");
-const { GetItemCommand } = require("@aws-sdk/client-dynamodb");
+const { docClient } = require("../shared/dynamodbClient");
+const { GetCommand } = require("@aws-sdk/lib-dynamodb");
 
 exports.handler = async (event) => {
   // const dynamoDBClient = new DynamoDBClient({
@@ -10,14 +10,14 @@ exports.handler = async (event) => {
     const id = event.pathParameters?.id;
     if (!id) throw new Error("Missing product ID");
 
-    const result = await dynamoDBClient.send(
-      new GetItemCommand({
+    const result = await docClient.send(
+      new GetCommand({
         TableName: process.env.PRODUCTS_TABLE,
-        Key: { id: { S: id } },
+        Key: { id },
       })
     );
 
-    if (!result.Item || result.Item.isActive?.BOOL === false) {
+    if (!result.Item || result.Item.isActive === false) {
       return {
         statusCode: 404,
         body: JSON.stringify({ error: "Product not found" }),

@@ -1,6 +1,6 @@
 const { PostConfirmationTriggerHandler } = require("aws-lambda");
-const { dynamoDBClient } = require("../shared/dynamodbClient");
-const { PutItemCommand } = require("@aws-sdk/client-dynamodb");
+const { docClient } = require("../shared/dynamodbClient");
+const { PutCommand } = require("@aws-sdk/lib-dynamodb");
 
 const handler = async (event) => {
   // const dynamoDBClient = new DynamoDBClient({
@@ -10,15 +10,15 @@ const handler = async (event) => {
     const userId = event.request.userAttributes.sub;
     const email = event.request.userAttributes.email;
 
-    await dynamoDBClient.send(
-      new PutItemCommand({
+    await docClient.send(
+      new PutCommand({
         TableName: process.env.USERS_TABLE,
         Item: {
-          userId: { S: userId },
-          email: { S: email },
-          role: { S: "customer" },
-          joinedAt: { S: new Date().toISOString() },
-          preferredCategories: { L: [] },
+          userId,
+          email,
+          role: "customer",
+          joinedAt: new Date().toISOString(),
+          preferredCategories: [],
         },
       })
     );

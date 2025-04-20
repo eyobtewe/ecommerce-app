@@ -1,6 +1,6 @@
 const { APIGatewayProxyHandler } = require("aws-lambda");
-const { dynamoDBClient } = require("../shared/dynamodbClient");
-const { PutItemCommand } = require("@aws-sdk/client-dynamodb");
+const { docClient } = require("../shared/dynamodbClient");
+const { PutCommand } = require("@aws-sdk/lib-dynamodb");
 
 exports.handler = async (event) => {
   // const dynamoDBClient = new DynamoDBClient({
@@ -13,23 +13,12 @@ exports.handler = async (event) => {
     const body = JSON.parse(event.body || "{}");
     const cartItems = body.cartItems || [];
 
-    const dynamoCartItems = {
-      L: cartItems.map((item) => ({
-        M: {
-          productId: { S: item.productId },
-          name: { S: item.name },
-          price: { N: item.price.toString() },
-          quantity: { N: item.quantity.toString() }
-        }
-      }))
-    };
-
-    await dynamoDBClient.send(new PutItemCommand({
+    await docClient.send(new PutCommand({
       TableName: process.env.CART_TABLE,
       Item: {
-        userId: { S: userId },
-        cartItems: dynamoCartItems,
-        updatedAt: { S: new Date().toISOString() }
+        userId,
+        cartItems,
+        updatedAt: new Date().toISOString()
       }
     }));
 

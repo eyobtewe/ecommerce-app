@@ -1,6 +1,6 @@
 const { APIGatewayProxyHandler } = require("aws-lambda");
-const { dynamoDBClient } = require("../shared/dynamodbClient");
-const { GetItemCommand } = require("@aws-sdk/client-dynamodb");
+const { docClient } = require("../shared/dynamodbClient");
+const { GetCommand } = require("@aws-sdk/lib-dynamodb");
 
 exports.handler = async (event) => {
   // const dynamoDBClient = new DynamoDBClient({
@@ -10,9 +10,9 @@ exports.handler = async (event) => {
     const userId = event.requestContext.authorizer?.claims?.sub;
     if (!userId) throw new Error("Unauthorized");
 
-    const result = await dynamoDBClient.send(new GetItemCommand({
+    const result = await docClient.send(new GetCommand({
       TableName: process.env.USERS_TABLE,
-      Key: { userId: { S: userId } }
+      Key: { userId }
     }));
 
     if (!result.Item) {

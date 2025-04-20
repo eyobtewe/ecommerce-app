@@ -1,6 +1,6 @@
 const { APIGatewayProxyHandler } = require("aws-lambda");
-const { dynamoDBClient } = require("../shared/dynamodbClient");
-const { QueryCommand } = require("@aws-sdk/client-dynamodb");
+const { docClient } = require("../shared/dynamodbClient");
+const { QueryCommand } = require("@aws-sdk/lib-dynamodb");
 
 exports.handler = async (event) => {
   // const dynamoDBClient = new DynamoDBClient({
@@ -10,21 +10,31 @@ exports.handler = async (event) => {
     const userId = event.requestContext.authorizer?.claims?.sub;
     if (!userId) throw new Error("Unauthorized");
 
-    const result = await dynamoDBClient.send(
+    const queryParams = event.queryStringParameters || {};
+    const limit = parseInt(queryParams.limit) || 10;
+    const lastEvaluatedKey = queryParams.lastEvaluatedKey ?
+      JSON.parse(decodeURIComponent(queryParams.lastEvaluatedKey)) : undefined;
+
+    const result = await docClient.send(
       new QueryCommand({
         TableName: process.env.ORDERS_TABLE,
         KeyConditionExpression: "userId = :uid",
         ExpressionAttributeValues: {
-          ":uid": { S: userId },
+          ":uid": userId,
         },
+        Limit: limit,
+        ExclusiveStartKey: lastEvaluatedKey,
       })
     );
 
-    const orders = result.Items || [];
-
     return {
       statusCode: 200,
-      body: JSON.stringify({ orders }),
+      body: JSON.stringify({
+        orders: result.Items || [],
+        lastEvaluatedKey: result.LastEvaluatedKey ?
+          encodeURIComponent(JSON.stringify(result.LastEvaluatedKey)) : null,
+        hasMore: !!result.LastEvaluatedKey
+      }),
     };
   } catch (error) {
     console.error("Error fetching orders:", error);

@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require("uuid");
-const { dynamoDBClient } = require("../shared/dynamodbClient");
+const { docClient } = require("../shared/dynamodbClient");
 const { snsClient } = require("../shared/snsClient");
-const { PutItemCommand, UpdateItemCommand } = require("@aws-sdk/client-dynamodb");
+const { PutCommand, UpdateCommand } = require("@aws-sdk/lib-dynamodb");
 const { PublishCommand } = require("@aws-sdk/client-sns");
 
 exports.handler = async (event) => {
@@ -27,50 +27,24 @@ exports.handler = async (event) => {
     };
 
     // Save order
-    await dynamoDBClient.send(
-      new PutItemCommand({
+    await docClient.send(
+      new PutCommand({
         TableName: process.env.ORDERS_TABLE,
-        Item: {
-          userId: { S: userId },
-          orderId: { S: orderId },
-          items: {
-            L: order.items.map((item) => ({
-              M: {
-                productId: { S: item.productId },
-                name: { S: item.name },
-                price: { N: item.price.toString() },
-                quantity: { N: item.quantity.toString() },
-                subtotal: { N: item.subtotal.toString() },
-              },
-            })),
-          },
-          total: { N: order.total.toString() },
-          status: { S: "Pending" },
-          createdAt: { S: order.createdAt },
-          shippingAddress: {
-            M: {
-              fullName: { S: order.shippingAddress.fullName },
-              addressLine1: { S: order.shippingAddress.addressLine1 },
-              city: { S: order.shippingAddress.city },
-              postalCode: { S: order.shippingAddress.postalCode },
-              country: { S: order.shippingAddress.country },
-            },
-          },
-        },
+        Item: order
       })
     );
 
     // Update product popularity
     for (const item of order.items) {
-      await dynamoDBClient.send(
-        new UpdateItemCommand({
+      await docClient.send(
+        new UpdateCommand({
           TableName: process.env.PRODUCTS_TABLE,
-          Key: { id: { S: item.productId } },
+          Key: { id: item.productId },
           UpdateExpression:
             "SET timesOrdered = if_not_exists(timesOrdered, :zero) + :inc",
           ExpressionAttributeValues: {
-            ":inc": { N: item.quantity.toString() },
-            ":zero": { N: "0" },
+            ":inc": item.quantity,
+            ":zero": 0,
           },
         })
       );

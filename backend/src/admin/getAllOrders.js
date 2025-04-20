@@ -1,28 +1,40 @@
 const { APIGatewayProxyHandler } = require("aws-lambda");
-const { dynamoDBClient } = require("../shared/dynamodbClient");
-const { ScanCommand } = require("@aws-sdk/client-dynamodb");
+const { docClient } = require("../shared/dynamodbClient");
+const { ScanCommand } = require("@aws-sdk/lib-dynamodb");
 
-exports.handler = async () => {
-  // const dynamoDBClient = new DynamoDBClient({
-  //   region: process.env.AWS_REGION || "us-east-1",
-  // });
+exports.handler = async (event) => {
   try {
-    const result = await dynamoDBClient.send(new ScanCommand({
-      TableName: process.env.ORDERS_TABLE
+    const queryParams = event.queryStringParameters || {};
+    const limit = parseInt(queryParams.limit) || 20;
+    const lastEvaluatedKey = queryParams.lastEvaluatedKey ?
+      JSON.parse(decodeURIComponent(queryParams.lastEvaluatedKey)) : undefined;
+    const sortBy = queryParams.sortBy || 'createdAt'; // createdAt, total, status
+    const sortOrder = queryParams.sortOrder === 'asc' ? 1 : -1;
+
+    const result = await docClient.send(new ScanCommand({
+      TableName: process.env.ORDERS_TABLE,
+      Limit: limit,
+      ExclusiveStartKey: lastEvaluatedKey
     }));
 
-    const orders = result.Items?.map((item) => ({
-      orderId: item.orderId.S,
-      userId: item.userId.S,
-      items: item.items.L,
-      total: parseFloat(item.total.N || "0"),
-      status: item.status.S,
-      createdAt: item.createdAt.S
-    })) || [];
+    const orders = (result.Items || [])
+      .sort((a, b) => {
+        const aValue = a[sortBy] || '';
+        const bValue = b[sortBy] || '';
+        if (sortBy === 'total') {
+          return (parseFloat(aValue) - parseFloat(bValue)) * sortOrder;
+        }
+        return aValue.localeCompare(bValue) * sortOrder;
+      });
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ orders }),
+      body: JSON.stringify({
+        orders,
+        lastEvaluatedKey: result.LastEvaluatedKey ?
+          encodeURIComponent(JSON.stringify(result.LastEvaluatedKey)) : null,
+        hasMore: !!result.LastEvaluatedKey
+      }),
     };
   } catch (error) {
     console.error("Error retrieving orders:", error);

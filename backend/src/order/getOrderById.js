@@ -1,6 +1,6 @@
 const { APIGatewayProxyHandler } = require("aws-lambda");
-const { dynamoDBClient } = require("../shared/dynamodbClient");
-const { GetItemCommand } = require("@aws-sdk/client-dynamodb");
+const { docClient } = require("../shared/dynamodbClient");
+const { GetCommand } = require("@aws-sdk/lib-dynamodb");
 
 exports.handler = async (event) => {
   // const dynamoDBClient = new DynamoDBClient({
@@ -11,12 +11,12 @@ exports.handler = async (event) => {
     const orderId = event.pathParameters?.id;
     if (!userId || !orderId) throw new Error("Missing parameters");
 
-    const result = await dynamoDBClient.send(
-      new GetItemCommand({
+    const result = await docClient.send(
+      new GetCommand({
         TableName: process.env.ORDERS_TABLE,
         Key: {
-          userId: { S: userId },
-          orderId: { S: orderId },
+          userId,
+          orderId,
         },
       })
     );
