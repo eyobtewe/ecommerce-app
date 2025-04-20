@@ -1,19 +1,22 @@
-import { APIGatewayProxyHandler } from "aws-lambda";
-import { dynamoDBClient } from "../shared/dynamodbClient";
-import { ScanCommand } from "@aws-sdk/client-dynamodb";
+const { APIGatewayProxyHandler } = require("aws-lambda");
+const { dynamoDBClient } = require("../shared/dynamodbClient");
+const { ScanCommand } = require("@aws-sdk/client-dynamodb");
 
-export const handler: APIGatewayProxyHandler = async () => {
+exports.handler = async () => {
+  // const dynamoDBClient = new DynamoDBClient({
+  //   region: process.env.AWS_REGION || "us-east-1",
+  // });
   try {
     const result = await dynamoDBClient.send(new ScanCommand({
       TableName: process.env.USERS_TABLE
     }));
 
-    const users = result.Items?.map(item => ({
+    const users = result.Items?.map((item) => ({
       userId: item.userId.S,
       email: item.email.S,
       role: item.role.S,
       joinedAt: item.joinedAt.S,
-      preferredCategories: item.preferredCategories?.L?.map(v => v.S)
+      preferredCategories: item.preferredCategories?.L?.map((v) => v.S)
     })) || [];
 
     return {

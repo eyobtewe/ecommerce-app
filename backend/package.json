@@ -1,12 +1,11 @@
 {
   "name": "ecommerce-backend",
   "version": "1.0.0",
-  "type": "module",
+  "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "bundle": "esbuild ./product/getProducts.ts --bundle --platform=node --target=node22 --outfile=dist/getProducts.js",
-    "bundle:all": "tsup . --format esm --out-dir dist",
+    "bundle": "node scripts/build-lambdas.mjs",
+    "zip": "bash scripts/zip-all.sh",
     "test": "vitest"
   },
   "engines": {
@@ -16,15 +15,12 @@
     "@aws-sdk/client-dynamodb": "^3.500.0",
     "@aws-sdk/client-sns": "^3.500.0",
     "@aws-sdk/lib-dynamodb": "^3.500.0",
-    "@types/aws-lambda": "^8.10.149",
+    "@faker-js/faker": "^9.7.0",
     "aws-lambda": "^1.0.7",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@types/node": "^20.11.30",
     "esbuild": "^0.20.0",
-    "tsup": "^7.2.0",
-    "typescript": "^5.3.3",
     "vitest": "^1.2.0"
   }
 }

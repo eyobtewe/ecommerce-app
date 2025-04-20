@@ -1,8 +1,10 @@
-import { APIGatewayProxyHandler } from "aws-lambda";
-import { dynamoDBClient } from "../shared/dynamodbClient";
-import { ScanCommand } from "@aws-sdk/client-dynamodb";
+const { ScanCommand } = require("@aws-sdk/client-dynamodb");
+const { dynamoDBClient } = require("../shared/dynamodbClient");
 
-export const handler: APIGatewayProxyHandler = async () => {
+exports.handler = async () => {
+  // const dynamoDBClient = new DynamoDBClient({
+  //   region: process.env.AWS_REGION || "us-east-1",
+  // });
   try {
     const result = await dynamoDBClient.send(new ScanCommand({
       TableName: process.env.PRODUCTS_TABLE
@@ -10,7 +12,7 @@ export const handler: APIGatewayProxyHandler = async () => {
 
     const items = result.Items || [];
     const sorted = items
-      .filter(p => p.isActive?.BOOL !== false)
+      .filter((p) => p.isActive?.BOOL !== false)
       .sort((a, b) =>
         (parseInt(b.timesOrdered?.N || "0") - parseInt(a.timesOrdered?.N || "0"))
       )

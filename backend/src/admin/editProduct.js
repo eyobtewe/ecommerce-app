@@ -1,8 +1,11 @@
-import { APIGatewayProxyHandler } from "aws-lambda";
-import { dynamoDBClient } from "../shared/dynamodbClient";
-import { UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+const { APIGatewayProxyHandler } = require("aws-lambda");
+const { dynamoDBClient } = require("../shared/dynamodbClient");
+const { UpdateItemCommand } = require("@aws-sdk/client-dynamodb");
 
-export const handler: APIGatewayProxyHandler = async (event) => {
+exports.handler = async (event) => {
+  // const dynamoDBClient = new DynamoDBClient({
+  //   region: process.env.AWS_REGION || "us-east-1",
+  // });
   try {
     const { id } = event.pathParameters || {};
     const body = JSON.parse(event.body || "{}");
@@ -10,8 +13,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     if (!id) throw new Error("Product ID required");
 
     const updateExpression = [];
-    const expressionValues: Record<string, any> = {};
-    const expressionNames: Record<string, string> = {};
+    
+    const expressionValues= {};
+    const expressionNames= {};
 
     for (const key in body) {
       updateExpression.push(`#${key} = :${key}`);

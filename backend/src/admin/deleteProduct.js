@@ -1,8 +1,11 @@
-import { APIGatewayProxyHandler } from "aws-lambda";
-import { dynamoDBClient } from "../shared/dynamodbClient";
-import { UpdateItemCommand, GetItemCommand, DeleteItemCommand } from "@aws-sdk/client-dynamodb";
+const { APIGatewayProxyHandler } = require("aws-lambda");
+const { dynamoDBClient } = require("../shared/dynamodbClient");
+const {  DeleteItemCommand } = require("@aws-sdk/client-dynamodb");
 
-export const handler: APIGatewayProxyHandler = async (event) => {
+exports.handler = async (event) => {
+  // const dynamoDBClient = new DynamoDBClient({
+  //   region: process.env.AWS_REGION || "us-east-1",
+  // });
   try {
     const { id } = event.pathParameters || {};
     if (!id) throw new Error("Product ID is required");
@@ -52,3 +55,5 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     };
   }
 };
+
+// module.exports = { handler };

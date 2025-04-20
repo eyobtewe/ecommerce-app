@@ -1,8 +1,11 @@
-import { APIGatewayProxyHandler } from "aws-lambda";
-import { dynamoDBClient } from "../shared/dynamodbClient";
-import { PutItemCommand } from "@aws-sdk/client-dynamodb";
+const { APIGatewayProxyHandler } = require("aws-lambda");
+const { dynamoDBClient } = require("../shared/dynamodbClient");
+const { PutItemCommand } = require("@aws-sdk/client-dynamodb");
 
-export const handler: APIGatewayProxyHandler = async (event) => {
+exports.handler = async (event) => {
+  // const dynamoDBClient = new DynamoDBClient({
+  //   region: process.env.AWS_REGION || "us-east-1",
+  // });
   try {
     const userId = event.requestContext.authorizer?.claims?.sub;
     if (!userId) throw new Error("Unauthorized");
@@ -11,7 +14,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const cartItems = body.cartItems || [];
 
     const dynamoCartItems = {
-      L: cartItems.map((item: any) => ({
+      L: cartItems.map((item) => ({
         M: {
           productId: { S: item.productId },
           name: { S: item.name },

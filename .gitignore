@@ -50,9 +50,10 @@ frontend/.next/
 # === Backend (Node.js) ===
 backend/.serverless/
 backend/.aws-sam/
+backend/dist-zip/
 
 # === Infrastructure (Terraform) ===
-infrastructure/.terraform/
+infrastructure/.terraform
 infrastructure/terraform.tfstate
 infrastructure/terraform.tfstate.backup
 infrastructure/crash.log

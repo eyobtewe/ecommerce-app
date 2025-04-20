@@ -1,21 +1,24 @@
-import { APIGatewayProxyHandler } from "aws-lambda";
-import { dynamoDBClient } from "../shared/dynamodbClient";
-import { UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+const { APIGatewayProxyHandler } = require("aws-lambda");
+const { dynamoDBClient } = require("../shared/dynamodbClient");
+const { UpdateItemCommand } = require("@aws-sdk/client-dynamodb");
 
-export const handler: APIGatewayProxyHandler = async (event) => {
+exports.handler = async (event) => {
+  // const dynamoDBClient = new DynamoDBClient({
+  //   region: process.env.AWS_REGION || "us-east-1",
+  // });
   try {
     const userId = event.requestContext.authorizer?.claims?.sub;
     if (!userId) throw new Error("Unauthorized");
 
     const body = JSON.parse(event.body || "{}");
-    const categories: string[] = body.preferredCategories || [];
+    const categories = body.preferredCategories || [];
 
     await dynamoDBClient.send(new UpdateItemCommand({
       TableName: process.env.USERS_TABLE,
       Key: { userId: { S: userId } },
       UpdateExpression: "SET preferredCategories = :cats",
       ExpressionAttributeValues: {
-        ":cats": { L: categories.map(c => ({ S: c })) }
+        ":cats": { L: categories.map((c) => ({ S: c })) }
       }
     }));
 
