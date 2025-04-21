@@ -632,18 +632,18 @@ resource "aws_lambda_function" "getAllOrders" {
 }
 
 # Login Lambda Function
-resource "aws_lambda_function" "login" {
-  function_name = "${local.prefix}-login"
-  filename      = "${path.module}/../../backend/dist-zip/login.zip"
-  source_code_hash = filebase64sha256("${path.module}/../../backend/dist-zip/login.zip")
-  handler       = "login.handler"
-  runtime       = "nodejs22.x"
-  role          = aws_iam_role.auth-role.arn
+# resource "aws_lambda_function" "login" {
+#   function_name = "${local.prefix}-login"
+#   filename      = "${path.module}/../../backend/dist-zip/login.zip"
+#   source_code_hash = filebase64sha256("${path.module}/../../backend/dist-zip/login.zip")
+#   handler       = "login.handler"
+#   runtime       = "nodejs22.x"
+#   role          = aws_iam_role.auth-role.arn
 
-  environment {
-    variables = {
-      COGNITO_USER_POOL_ID = aws_cognito_user_pool.main.id
-      COGNITO_CLIENT_ID    = aws_cognito_user_pool_client.main.id
-    }
-  }
-}
+#   environment {
+#     variables = {
+#       COGNITO_USER_POOL_ID = aws_cognito_user_pool.main.id
+#       COGNITO_CLIENT_ID    = aws_cognito_user_pool_client.main.id
+#     }
+#   }
+# }
