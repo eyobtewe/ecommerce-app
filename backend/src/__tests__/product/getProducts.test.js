@@ -12,16 +12,28 @@ describe('getProducts Lambda Function', () => {
     {
       id: 'prod1',
       name: 'Test Product 1',
+      description: 'Description 1',
+      price: 99.99,
+      stock: 10,
       category: 'electronics',
+      brand: 'Test Brand',
+      imageUrls: ['https://example.com/image1.jpg'],
       isActive: true,
-      price: 99.99
+      timesOrdered: 5,
+      createdAt: '2024-01-01T00:00:00Z'
     },
     {
       id: 'prod2',
       name: 'Test Product 2',
+      description: 'Description 2',
+      price: 19.99,
+      stock: 20,
       category: 'books',
+      brand: 'Another Brand',
+      imageUrls: ['https://example.com/image2.jpg', 'https://example.com/image3.jpg'],
       isActive: true,
-      price: 19.99
+      timesOrdered: 10,
+      createdAt: '2024-01-02T00:00:00Z'
     },
     {
       id: 'prod3',
@@ -29,10 +41,17 @@ describe('getProducts Lambda Function', () => {
       category: 'electronics',
       isActive: false,
       price: 49.99
+    },
+    {
+      id: 'prod4',
+      name: 'Product with Missing Fields',
+      price: 29.99,
+      stock: 5,
+      isActive: true
     }
   ];
 
-  test('should return all active products without filters', async () => {
+  test('should return all active products with all fields', async () => {
     const event = {
       queryStringParameters: null
     };
@@ -44,8 +63,47 @@ describe('getProducts Lambda Function', () => {
     const response = await handler(event);
     expect(response.statusCode).toBe(200);
     const body = JSON.parse(response.body);
-    expect(body.items).toHaveLength(2); // Only active products
-    expect(body.items.every(p => p.isActive !== false)).toBe(true);
+
+    // Check response structure
+    expect(body).toHaveProperty('items');
+    expect(body).toHaveProperty('lastEvaluatedKey');
+    expect(body).toHaveProperty('hasMore');
+
+    // Check items length (should exclude inactive products)
+    expect(body.items).toHaveLength(3);
+
+    // Check first product has all fields
+    const firstProduct = body.items[0];
+    expect(firstProduct).toHaveProperty('id');
+    expect(firstProduct).toHaveProperty('name');
+    expect(firstProduct).toHaveProperty('description');
+    expect(firstProduct).toHaveProperty('price');
+    expect(firstProduct).toHaveProperty('stock');
+    expect(firstProduct).toHaveProperty('category');
+    expect(firstProduct).toHaveProperty('brand');
+    expect(firstProduct).toHaveProperty('imageUrls');
+    expect(firstProduct).toHaveProperty('timesOrdered');
+    expect(firstProduct).toHaveProperty('createdAt');
+  });
+
+  test('should handle products with missing optional fields', async () => {
+    const event = {
+      queryStringParameters: null
+    };
+
+    ddbMock.on(ScanCommand).resolves({
+      Items: [mockProducts[3]] // Product with missing fields
+    });
+
+    const response = await handler(event);
+    expect(response.statusCode).toBe(200);
+    const body = JSON.parse(response.body);
+
+    const product = body.items[0];
+    expect(product.category).toBe('Uncategorized');
+    expect(product.brand).toBe('Unknown');
+    expect(product.imageUrls).toEqual([]);
+    expect(product.timesOrdered).toBe(0);
   });
 
   test('should filter products by category', async () => {
@@ -64,7 +122,6 @@ describe('getProducts Lambda Function', () => {
     const body = JSON.parse(response.body);
     expect(body.items).toHaveLength(1);
     expect(body.items[0].category).toBe('electronics');
-    expect(body.items[0].isActive).toBe(true);
   });
 
   test('should filter products by search term', async () => {

@@ -1,0 +1,388 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2024-04-21T15:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2024.2.0",
+  "resources": [
+    {
+      "_type": "workspace",
+      "_id": "wrk_1",
+      "parentId": null,
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Ecommerce API",
+      "description": "",
+      "scope": "collection"
+    },
+    {
+      "_type": "environment",
+      "_id": "env_1",
+      "parentId": "wrk_1",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Ecommerce API",
+      "data": {
+        "base_url": "https://ry3ixdtv5j.execute-api.us-east-1.amazonaws.com/prod",
+        "token": "eyJraWQiOiJzMlNNa2o4RUd1SFl4ZVluZ0hZNW5FRVlEdWNtenhDQ3BFdzFIK1I3dUFJPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIxNGQ4NTQ2OC0wMGExLTcwNjAtNDJlMC02YWUzY2FkODFhMDUiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfcEVUa0pmZUZ2IiwiY29nbml0bzp1c2VybmFtZSI6InRlc3RAZXhhbXBsZS5jb20iLCJvcmlnaW5fanRpIjoiZDQ2OWM5ZGYtZTU3My00OTBhLTg3YjMtNTdkYWEzYThlMzIxIiwiYXVkIjoiN2MzZ2hiN2liNmdmdmxpYnZwNjZtaGNjbnEiLCJldmVudF9pZCI6IjYyZGQzMTVmLTBlNzEtNDRiNC04MzVmLTc3MjRkYmYxMjdhYyIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNzQ1MjUxNDg3LCJleHAiOjE3NDUyNTUwODcsImlhdCI6MTc0NTI1MTQ4NywianRpIjoiZmM0ZmM2M2EtOTFlOC00ZTNmLWExNWQtY2Q1ZjBjNDc0NzEwIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIn0.eiTVyMVZy-EcekjoejALOiXFBAO2SivKbrlwv56wcIfc3ooEj3uxL2n3uZU1MIPU0SEJkrT31CMiuWqNRJz1L-jlHJ794XYeKZePDGmhKnoukZLNrvx2XwSfp-VzSwHvHp0z8s7c2OksM2NdUM--ztkt9bVtOmX9uo3rIKB3KHGeafBOE3sWovdXArkVEmMuFmc8lh8i37xMoNQC753MMMn_t5o4YaZPENfXSOD0P1II-hd-nMToaoWZx-8JHgui_PXpHmFx9Q9AHRMPNXUf-lUZzmM0GqH_kc3t_PkFAEcc3buWsfnCifMj05uf7trsslhF9LuWl4_dA1-hmYFpJQ",
+        "admin_token": "eyJraWQiOiJzMlNNa2o4RUd1SFl4ZVluZ0hZNW5FRVlEdWNtenhDQ3BFdzFIK1I3dUFJPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIxNDQ4MDRkOC1kMDMxLTcwM2MtNzYyOS1iMmZiYjg5MDJkZjciLCJjb2duaXRvOmdyb3VwcyI6WyJhZG1pbiJdLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfcEVUa0pmZUZ2IiwiY29nbml0bzp1c2VybmFtZSI6ImFkbWluQGV4YW1wbGUuY29tIiwib3JpZ2luX2p0aSI6IjU3NDVhNjMyLWJjZjUtNGRjMC1iYjA3LTVhZDJmZDIxMjlkOSIsImF1ZCI6IjdjM2doYjdpYjZnZnZsaWJ2cDY2bWhjY25xIiwiZXZlbnRfaWQiOiI5M2E0ZDRhMS05MzlmLTQxYTUtYTNjNi03ZjRlMzViZTcyNzkiLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTc0NTI1MTQ5MCwiZXhwIjoxNzQ1MjU1MDg5LCJpYXQiOjE3NDUyNTE0OTAsImp0aSI6IjIzZmFlMGI0LTk1NDYtNGZmNS1iYzdhLWZmZmJhYTcyNjk0MSIsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20ifQ.FPONuNGONJbRisb5XURVLrdppW5A539lVuoHwqfkaSPYVExTw9AWpa4ETgIk8zh0RWa33wFcX8b9Ugkh71pAkmYYwNEORZU_mA92kNMWn3a1o8KCRRqTwdABSKfxnn3w3_VhTKjHhcpB7ioXnnEkZjRWZDRH9rOY86XWYRtGfr4xinvecUXPJEeIaeIOgFxwWrfBJsEZkiFXZYbo1WEgPS_V2J7YLIeqE6DVhbNXmrCTdhHuLGeaq4iQfvAt5lvIU9HqCuYyNci2CP9jVDRY-qRo8Td7GXCT8JLpcdq38HApmF3hjaNtviLKpJGfLrWqJeDp2Fx_gKrE-M0DBjPiZQ",
+        "product_id": "YOUR_PRODUCT_ID",
+        "order_id": "YOUR_ORDER_ID",
+        "user_id": "YOUR_USER_ID"
+      }
+    },
+    {
+      "_type": "request_group",
+      "_id": "req_grp_1",
+      "parentId": "wrk_1",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Public APIs",
+      "description": "Public endpoints that don't require authentication"
+    },
+    {
+      "_type": "request",
+      "_id": "req_1",
+      "parentId": "req_grp_1",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Get All Products",
+      "url": "{{ _.base_url }}/products",
+      "method": "GET",
+      "headers": []
+    },
+    {
+      "_type": "request",
+      "_id": "req_2",
+      "parentId": "req_grp_1",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Get Product by ID",
+      "url": "{{ _.base_url }}/products/{{ _.product_id }}",
+      "method": "GET",
+      "headers": []
+    },
+    {
+      "_type": "request",
+      "_id": "req_3",
+      "parentId": "req_grp_1",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Get Popular Products",
+      "url": "{{ _.base_url }}/products/popular",
+      "method": "GET",
+      "headers": []
+    },
+    {
+      "_type": "request",
+      "_id": "req_4",
+      "parentId": "req_grp_1",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Get Similar Products",
+      "url": "{{ _.base_url }}/products/similar/{{ _.product_id }}",
+      "method": "GET",
+      "headers": []
+    },
+    {
+      "_type": "request_group",
+      "_id": "req_grp_2",
+      "parentId": "wrk_1",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "User APIs",
+      "description": "Endpoints that require user authentication"
+    },
+    {
+      "_type": "request",
+      "_id": "req_5",
+      "parentId": "req_grp_2",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Get Current User",
+      "url": "{{ _.base_url }}/user/me",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ]
+    },
+    {
+      "_type": "request",
+      "_id": "req_6",
+      "parentId": "req_grp_2",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Update User Preferences",
+      "url": "{{ _.base_url }}/user/preferences",
+      "method": "POST",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"preferredCategories\": [\"Electronics\", \"Books\"]\n}"
+      }
+    },
+    {
+      "_type": "request_group",
+      "_id": "req_grp_3",
+      "parentId": "wrk_1",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Cart APIs",
+      "description": "Cart management endpoints"
+    },
+    {
+      "_type": "request",
+      "_id": "req_7",
+      "parentId": "req_grp_3",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Get Cart",
+      "url": "{{ _.base_url }}/cart",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ]
+    },
+    {
+      "_type": "request",
+      "_id": "req_8",
+      "parentId": "req_grp_3",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Save Cart",
+      "url": "{{ _.base_url }}/cart",
+      "method": "POST",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"items\": [\n    {\n      \"productId\": \"{{ _.product_id }}\",\n      \"quantity\": 2\n    }\n  ]\n}"
+      }
+    },
+    {
+      "_type": "request_group",
+      "_id": "req_grp_4",
+      "parentId": "wrk_1",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Order APIs",
+      "description": "Order management endpoints"
+    },
+    {
+      "_type": "request",
+      "_id": "req_9",
+      "parentId": "req_grp_4",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Place Order",
+      "url": "{{ _.base_url }}/orders",
+      "method": "POST",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"items\": [\n    {\n      \"productId\": \"{{ _.product_id }}\",\n      \"quantity\": 2\n    }\n  ],\n  \"shippingAddress\": \"123 Test St\",\n  \"total\": 953.18\n}"
+      }
+    },
+    {
+      "_type": "request",
+      "_id": "req_10",
+      "parentId": "req_grp_4",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Get Orders",
+      "url": "{{ _.base_url }}/orders",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ]
+    },
+    {
+      "_type": "request",
+      "_id": "req_11",
+      "parentId": "req_grp_4",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Get Order by ID",
+      "url": "{{ _.base_url }}/orders/{{ _.order_id }}",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ]
+    },
+    {
+      "_type": "request_group",
+      "_id": "req_grp_5",
+      "parentId": "wrk_1",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Review APIs",
+      "description": "Product review endpoints"
+    },
+    {
+      "_type": "request",
+      "_id": "req_12",
+      "parentId": "req_grp_5",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Submit Review",
+      "url": "{{ _.base_url }}/reviews/{{ _.product_id }}",
+      "method": "POST",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"rating\": 5,\n  \"comment\": \"Great product!\"\n}"
+      }
+    },
+    {
+      "_type": "request_group",
+      "_id": "req_grp_6",
+      "parentId": "wrk_1",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Admin APIs",
+      "description": "Admin-only endpoints"
+    },
+    {
+      "_type": "request",
+      "_id": "req_13",
+      "parentId": "req_grp_6",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Add Product",
+      "url": "{{ _.base_url }}/admin/products",
+      "method": "POST",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.admin_token }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Test Product\",\n  \"description\": \"Test Description\",\n  \"price\": 99.99,\n  \"stock\": 100,\n  \"category\": \"Test\",\n  \"brand\": \"Test Brand\",\n  \"tags\": [\"test\"],\n  \"imageUrls\": [\"https://example.com/test.jpg\"]\n}"
+      }
+    },
+    {
+      "_type": "request",
+      "_id": "req_14",
+      "parentId": "req_grp_6",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Edit Product",
+      "url": "{{ _.base_url }}/admin/products/{{ _.product_id }}",
+      "method": "PUT",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.admin_token }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Updated Product\"\n}"
+      }
+    },
+    {
+      "_type": "request",
+      "_id": "req_15",
+      "parentId": "req_grp_6",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Delete Product",
+      "url": "{{ _.base_url }}/admin/products/{{ _.product_id }}",
+      "method": "DELETE",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.admin_token }}"
+        }
+      ]
+    },
+    {
+      "_type": "request",
+      "_id": "req_16",
+      "parentId": "req_grp_6",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Get All Users",
+      "url": "{{ _.base_url }}/admin/users",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.admin_token }}"
+        }
+      ]
+    },
+    {
+      "_type": "request",
+      "_id": "req_17",
+      "parentId": "req_grp_6",
+      "modified": 1713708000000,
+      "created": 1713708000000,
+      "name": "Get All Orders",
+      "url": "{{ _.base_url }}/admin/orders",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.admin_token }}"
+        }
+      ]
+    }
+  ]
+}

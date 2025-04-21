@@ -22,6 +22,10 @@ exports.handler = async (event) => {
         TableName: process.env.PRODUCTS_TABLE,
         Limit: limit,
         ExclusiveStartKey: lastEvaluatedKey,
+        ProjectionExpression: "id, #name, description, price, stock, category, brand, imageUrls, isActive, timesOrdered, createdAt",
+        ExpressionAttributeNames: {
+          "#name": "name"
+        }
       })
     );
 
@@ -33,11 +37,27 @@ exports.handler = async (event) => {
         (p) =>
           (!filterCategory || p.category === filterCategory) &&
           (!filterTerm || p.name?.toLowerCase().includes(filterTerm))
-      );
+      )
+      .map(product => ({
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        stock: product.stock,
+        category: product.category || 'Uncategorized',
+        brand: product.brand || 'Unknown',
+        imageUrls: product.imageUrls || [],
+        timesOrdered: product.timesOrdered || 0,
+        createdAt: product.createdAt
+      }));
 
     // Return the filtered results along with pagination information
     return {
       statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
       body: JSON.stringify({
         items: filtered,
         lastEvaluatedKey: scanResult.LastEvaluatedKey ?
@@ -50,6 +70,10 @@ exports.handler = async (event) => {
     console.error("Error fetching products:", error);
     return {
       statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
       body: JSON.stringify({ error: "Internal server error" }),
     };
   }

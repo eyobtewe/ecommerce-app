@@ -440,7 +440,11 @@ resource "aws_iam_role_policy" "review-write-policy" {
     Statement = [
       {
         Effect   = "Allow",
-        Action   = ["dynamodb:PutItem"],
+        Action   = [
+          "dynamodb:PutItem",
+          "dynamodb:Query",
+          "dynamodb:GetItem"
+        ],
         Resource = aws_dynamodb_table.reviews.arn
       },
       {
@@ -469,6 +473,22 @@ resource "aws_lambda_function" "submitReview" {
     }
   }
 }
+
+resource "aws_lambda_function" "getProductReviews" {
+  function_name    = "${local.prefix}-getProductReviews"
+  filename         = "${path.module}/../../backend/dist-zip/getProductReviews.zip"
+  source_code_hash = filebase64sha256("${path.module}/../../backend/dist-zip/getProductReviews.zip")
+  handler          = "getProductReviews.handler"
+  runtime          = "nodejs22.x"
+  role             = aws_iam_role.review-role.arn
+
+  environment {
+    variables = {
+      REVIEWS_TABLE = aws_dynamodb_table.reviews.name
+    }
+  }
+}
+
 # ✅ Batch 5.2: Admin Lambdas + IAM Role
 
 resource "aws_iam_role" "admin-role" {
@@ -508,7 +528,20 @@ resource "aws_iam_role_policy" "admin-rw-policy" {
       {
         Effect = "Allow",
         Action = [
-          "logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:DeleteObject"
+        ],
+        Resource = [
+          "${aws_s3_bucket.product_images.arn}/*"
+        ]
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
         ],
         Resource = "*"
       }
@@ -528,7 +561,7 @@ resource "aws_lambda_function" "add_product" {
   environment {
     variables = {
       PRODUCTS_TABLE = aws_dynamodb_table.products.name
-      # AWS_REGION     = var.aws_region
+      PRODUCT_IMAGES_BUCKET = aws_s3_bucket.product_images.id
     }
   }
 }
@@ -594,6 +627,23 @@ resource "aws_lambda_function" "getAllOrders" {
     variables = {
       ORDERS_TABLE = aws_dynamodb_table.orders.name
       # AWS_REGION   = var.aws_region
+    }
+  }
+}
+
+# Login Lambda Function
+resource "aws_lambda_function" "login" {
+  function_name = "${local.prefix}-login"
+  filename      = "${path.module}/../../backend/dist-zip/login.zip"
+  source_code_hash = filebase64sha256("${path.module}/../../backend/dist-zip/login.zip")
+  handler       = "login.handler"
+  runtime       = "nodejs22.x"
+  role          = aws_iam_role.auth-role.arn
+
+  environment {
+    variables = {
+      COGNITO_USER_POOL_ID = aws_cognito_user_pool.main.id
+      COGNITO_CLIENT_ID    = aws_cognito_user_pool_client.main.id
     }
   }
 }

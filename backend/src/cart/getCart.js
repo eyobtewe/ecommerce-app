@@ -19,16 +19,19 @@ exports.handler = async (event) => {
       })
     );
 
-    const cart = result.Item?.cartItems?.map((item) => ({
-      productId: item.productId,
-      name: item.name,
-      price: item.price,
-      quantity: item.quantity,
-    })) || [];
+    const cart = {
+      userId,
+      items: result.Item?.cartItems?.map((item) => ({
+        productId: item.productId,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+      })) || []
+    };
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ cart }),
+      body: JSON.stringify(cart),
     };
   } catch (error) {
     console.error("Error retrieving cart:", error);

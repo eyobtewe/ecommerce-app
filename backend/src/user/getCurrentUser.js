@@ -7,27 +7,50 @@ exports.handler = async (event) => {
   //   region: process.env.AWS_REGION || "us-east-1",
   // });
   try {
+    // Extract user information from the request context
     const userId = event.requestContext.authorizer?.claims?.sub;
-    if (!userId) throw new Error("Unauthorized");
-
-    const result = await docClient.send(new GetCommand({
-      TableName: process.env.USERS_TABLE,
-      Key: { userId }
-    }));
-
-    if (!result.Item) {
-      return { statusCode: 404, body: JSON.stringify({ error: "User not found" }) };
+    if (!userId) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ error: "Unauthorized" })
+      };
     }
 
+    // Get user from DynamoDB
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: process.env.USERS_TABLE,
+        Key: { userId }
+      })
+    );
+
+    // Handle user not found
+    if (!result.Item) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ error: "User not found" })
+      };
+    }
+
+    // Handle inactive user
+    if (!result.Item.isActive) {
+      return {
+        statusCode: 403,
+        body: JSON.stringify({ error: "User account is inactive" })
+      };
+    }
+
+    // Return user data (excluding sensitive information)
+    const { userId: _, ...userData } = result.Item;
     return {
       statusCode: 200,
-      body: JSON.stringify(result.Item),
+      body: JSON.stringify(userData)
     };
   } catch (error) {
-    console.error("Error fetching user:", error);
+    console.error("Error getting user:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Internal server error" }),
+      body: JSON.stringify({ error: "Internal server error" })
     };
   }
 };

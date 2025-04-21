@@ -1,6 +1,6 @@
 const { APIGatewayProxyHandler } = require("aws-lambda");
-const { dynamoDBClient } = require("../shared/dynamodbClient");
-const {  DeleteItemCommand } = require("@aws-sdk/client-dynamodb");
+const { docClient } = require("../shared/dynamodbClient");
+const { DeleteCommand, GetCommand, UpdateCommand } = require("@aws-sdk/lib-dynamodb");
 
 exports.handler = async (event) => {
   // const dynamoDBClient = new DynamoDBClient({
@@ -11,24 +11,24 @@ exports.handler = async (event) => {
     if (!id) throw new Error("Product ID is required");
 
     // Get the product first
-    const result = await dynamoDBClient.send(new GetItemCommand({
+    const result = await docClient.send(new GetCommand({
       TableName: process.env.PRODUCTS_TABLE,
-      Key: { id: { S: id } }
+      Key: { id }
     }));
 
     const product = result.Item;
     if (!product) throw new Error("Product not found");
 
-    const timesOrdered = parseInt(product.timesOrdered?.N || "0");
+    const timesOrdered = product.timesOrdered || 0;
 
     if (timesOrdered > 0) {
       // Deactivate instead
-      await dynamoDBClient.send(new UpdateItemCommand({
+      await docClient.send(new UpdateCommand({
         TableName: process.env.PRODUCTS_TABLE,
-        Key: { id: { S: id } },
+        Key: { id },
         UpdateExpression: "SET isActive = :false",
         ExpressionAttributeValues: {
-          ":false": { BOOL: false }
+          ":false": false
         }
       }));
       return {
@@ -38,9 +38,9 @@ exports.handler = async (event) => {
     }
 
     // Delete if never sold
-    await dynamoDBClient.send(new DeleteItemCommand({
+    await docClient.send(new DeleteCommand({
       TableName: process.env.PRODUCTS_TABLE,
-      Key: { id: { S: id } }
+      Key: { id }
     }));
 
     return {

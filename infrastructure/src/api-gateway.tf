@@ -111,34 +111,6 @@ resource "aws_api_gateway_integration" "get_similar_products_integration" {
   uri                     = aws_lambda_function.getSimilarProducts.invoke_arn
 }
 
-# resource "aws_api_gateway_resource" "products_similar" {
-#   rest_api_id = aws_api_gateway_rest_api.ecommerce_api.id
-#   parent_id   = aws_api_gateway_resource.products.id
-#   path_part   = "similar"
-# }
-
-# resource "aws_api_gateway_resource" "products_similar_id" {
-#   rest_api_id = aws_api_gateway_rest_api.ecommerce_api.id
-#   parent_id   = aws_api_gateway_resource.products_similar.id
-#   path_part   = "{id}"
-# }
-
-# resource "aws_api_gateway_method" "get_similar_products" {
-#   rest_api_id   = aws_api_gateway_rest_api.ecommerce_api.id
-#   resource_id   = aws_api_gateway_resource.products_similar_id.id
-#   http_method   = "GET"
-#   authorization = "NONE"
-# }
-
-# resource "aws_api_gateway_integration" "get_similar_products_integration" {
-#   rest_api_id             = aws_api_gateway_rest_api.ecommerce_api.id
-#   resource_id             = aws_api_gateway_resource.products_similar_id.id
-#   http_method             = aws_api_gateway_method.get_similar_products.http_method
-#   integration_http_method = "POST"
-#   type                    = "AWS_PROXY"
-#   uri                     = aws_lambda_function.getSimilarProducts.invoke_arn
-# }
-
 # /reviews
 resource "aws_api_gateway_resource" "reviews" {
   rest_api_id = aws_api_gateway_rest_api.ecommerce_api.id
@@ -169,20 +141,20 @@ resource "aws_api_gateway_resource" "reviews_product_id" {
   path_part   = "{productId}"
 }
 
-resource "aws_api_gateway_method" "post_review_product_id" {
+resource "aws_api_gateway_method" "get_reviews_product_id" {
   rest_api_id   = aws_api_gateway_rest_api.ecommerce_api.id
   resource_id   = aws_api_gateway_resource.reviews_product_id.id
-  http_method   = "POST"
+  http_method   = "GET"
   authorization = "NONE"
 }
 
-resource "aws_api_gateway_integration" "post_review_product_id_integration" {
+resource "aws_api_gateway_integration" "get_reviews_product_id_integration" {
   rest_api_id             = aws_api_gateway_rest_api.ecommerce_api.id
   resource_id             = aws_api_gateway_resource.reviews_product_id.id
-  http_method             = aws_api_gateway_method.post_review_product_id.http_method
+  http_method             = aws_api_gateway_method.get_reviews_product_id.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.submitReview.invoke_arn
+  uri                     = aws_lambda_function.getProductReviews.invoke_arn
 }
 
 ##########################################
@@ -390,6 +362,10 @@ resource "aws_api_gateway_integration" "post_admin_product_integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.add_product.invoke_arn
+
+  request_parameters = {
+    "integration.request.header.Content-Type" = "method.request.header.Content-Type"
+  }
 }
 
 # /admin/products/{id}
@@ -479,4 +455,91 @@ resource "aws_api_gateway_integration" "get_admin_users_integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.getAllUsers.invoke_arn
+}
+
+# Update the api_resources list to remove auth resources
+locals {
+  cors_headers = {
+    "method.response.header.Access-Control-Allow-Origin"  = true
+    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Credentials" = true
+  }
+  cors_integration_headers = {
+    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
+    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+    "method.response.header.Access-Control-Allow-Methods" = "'GET,POST,PUT,DELETE,OPTIONS'"
+    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
+  }
+  api_resources = [
+    aws_api_gateway_resource.products,
+    aws_api_gateway_resource.product_by_id,
+    aws_api_gateway_resource.products_popular,
+    aws_api_gateway_resource.products_similar,
+    aws_api_gateway_resource.reviews,
+    aws_api_gateway_resource.reviews_product_id,
+    aws_api_gateway_resource.cart,
+    aws_api_gateway_resource.orders,
+    aws_api_gateway_resource.orders_id,
+    aws_api_gateway_resource.user,
+    aws_api_gateway_resource.user_me,
+    aws_api_gateway_resource.user_preferences,
+    aws_api_gateway_resource.admin,
+    aws_api_gateway_resource.admin_products,
+    aws_api_gateway_resource.admin_products_id,
+    aws_api_gateway_resource.admin_orders,
+    aws_api_gateway_resource.admin_users
+  ]
+}
+
+# Create OPTIONS method for each resource
+resource "aws_api_gateway_method" "options" {
+  for_each = {
+    for resource in local.api_resources : resource.id => resource
+  }
+  rest_api_id   = aws_api_gateway_rest_api.ecommerce_api.id
+  resource_id   = each.value.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+}
+
+# Add CORS method response
+resource "aws_api_gateway_method_response" "cors_200" {
+  for_each = {
+    for resource in local.api_resources : resource.id => resource
+  }
+  rest_api_id = aws_api_gateway_rest_api.ecommerce_api.id
+  resource_id = each.value.id
+  http_method = aws_api_gateway_method.options[each.value.id].http_method
+  status_code = "200"
+  response_models = {
+    "application/json" = "Empty"
+  }
+  response_parameters = local.cors_headers
+}
+
+# Add CORS integration
+resource "aws_api_gateway_integration" "cors_integration" {
+  for_each = {
+    for resource in local.api_resources : resource.id => resource
+  }
+  rest_api_id = aws_api_gateway_rest_api.ecommerce_api.id
+  resource_id = each.value.id
+  http_method = aws_api_gateway_method.options[each.value.id].http_method
+  type        = "MOCK"
+  request_templates = {
+    "application/json" = "{\"statusCode\": 200}"
+  }
+}
+
+# Add CORS integration response
+resource "aws_api_gateway_integration_response" "cors_integration_response" {
+  for_each = {
+    for resource in local.api_resources : resource.id => resource
+  }
+  rest_api_id = aws_api_gateway_rest_api.ecommerce_api.id
+  resource_id = each.value.id
+  http_method = aws_api_gateway_method.options[each.value.id].http_method
+  status_code = aws_api_gateway_method_response.cors_200[each.value.id].status_code
+  response_parameters = local.cors_integration_headers
 }

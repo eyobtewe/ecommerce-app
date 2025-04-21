@@ -1,189 +1,189 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
+# AWSTemplateFormatVersion: '2010-09-09'
+# Transform: AWS::Serverless-2016-10-31
 
-Description: E-commerce Application Backend
+# Description: E-commerce Application Backend
 
-Globals:
-  Function:
-    Timeout: 30
-    MemorySize: 128
-    Runtime: nodejs18.x
-    Environment:
-      Variables:
-        USERS_TABLE: !Ref UsersTable
-        PRODUCTS_TABLE: !Ref ProductsTable
-        CART_TABLE: !Ref CartTable
-        ORDERS_TABLE: !Ref OrdersTable
-        REVIEWS_TABLE: !Ref ReviewsTable
-        SNS_TOPIC_ARN: !Ref OrderNotificationsTopic
-  Api:
-    Cors:
-      AllowMethods: "'*'"
-      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-      AllowOrigin: "'*'"
-    Auth:
-      ApiKeyRequired: true
+# Globals:
+#   Function:
+#     Timeout: 30
+#     MemorySize: 128
+#     Runtime: nodejs18.x
+#     Environment:
+#       Variables:
+#         USERS_TABLE: !Ref UsersTable
+#         PRODUCTS_TABLE: !Ref ProductsTable
+#         CART_TABLE: !Ref CartTable
+#         ORDERS_TABLE: !Ref OrdersTable
+#         REVIEWS_TABLE: !Ref ReviewsTable
+#         SNS_TOPIC_ARN: !Ref OrderNotificationsTopic
+#   Api:
+#     Cors:
+#       AllowMethods: "'*'"
+#       AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+#       AllowOrigin: "'*'"
+#     Auth:
+#       ApiKeyRequired: true
 
-Resources:
-  # API Key
-  ApiKey:
-    Type: AWS::ApiGateway::ApiKey
-    Properties:
-      Name: EcommerceApiKey
-      Description: API Key for E-commerce API
-      Enabled: true
+# Resources:
+#   # API Key
+#   ApiKey:
+#     Type: AWS::ApiGateway::ApiKey
+#     Properties:
+#       Name: EcommerceApiKey
+#       Description: API Key for E-commerce API
+#       Enabled: true
 
-  # Usage Plan
-  UsagePlan:
-    Type: AWS::ApiGateway::UsagePlan
-    Properties:
-      ApiStages:
-        - ApiId: !Ref ServerlessRestApi
-          Stage: Prod
-      Description: Usage plan for E-commerce API
-      UsagePlanName: EcommerceUsagePlan
+#   # Usage Plan
+#   UsagePlan:
+#     Type: AWS::ApiGateway::UsagePlan
+#     Properties:
+#       ApiStages:
+#         - ApiId: !Ref ServerlessRestApi
+#           Stage: Prod
+#       Description: Usage plan for E-commerce API
+#       UsagePlanName: EcommerceUsagePlan
 
-  # Usage Plan Key
-  UsagePlanKey:
-    Type: AWS::ApiGateway::UsagePlanKey
-    Properties:
-      KeyId: !Ref ApiKey
-      KeyType: API_KEY
-      UsagePlanId: !Ref UsagePlan
+#   # Usage Plan Key
+#   UsagePlanKey:
+#     Type: AWS::ApiGateway::UsagePlanKey
+#     Properties:
+#       KeyId: !Ref ApiKey
+#       KeyType: API_KEY
+#       UsagePlanId: !Ref UsagePlan
 
-  # Tables
-  UsersTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: Users
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: userId
-          AttributeType: S
-      KeySchema:
-        - AttributeName: userId
-          KeyType: HASH
+#   # Tables
+#   UsersTable:
+#     Type: AWS::DynamoDB::Table
+#     Properties:
+#       TableName: Users
+#       BillingMode: PAY_PER_REQUEST
+#       AttributeDefinitions:
+#         - AttributeName: userId
+#           AttributeType: S
+#       KeySchema:
+#         - AttributeName: userId
+#           KeyType: HASH
 
-  ProductsTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: Products
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
+#   ProductsTable:
+#     Type: AWS::DynamoDB::Table
+#     Properties:
+#       TableName: Products
+#       BillingMode: PAY_PER_REQUEST
+#       AttributeDefinitions:
+#         - AttributeName: id
+#           AttributeType: S
+#       KeySchema:
+#         - AttributeName: id
+#           KeyType: HASH
 
-  CartTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: Cart
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: userId
-          AttributeType: S
-      KeySchema:
-        - AttributeName: userId
-          KeyType: HASH
+#   CartTable:
+#     Type: AWS::DynamoDB::Table
+#     Properties:
+#       TableName: Cart
+#       BillingMode: PAY_PER_REQUEST
+#       AttributeDefinitions:
+#         - AttributeName: userId
+#           AttributeType: S
+#       KeySchema:
+#         - AttributeName: userId
+#           KeyType: HASH
 
-  OrdersTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: Orders
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-        - AttributeName: userId
-          AttributeType: S
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
-      GlobalSecondaryIndexes:
-        - IndexName: UserIdIndex
-          KeySchema:
-            - AttributeName: userId
-              KeyType: HASH
-          Projection:
-            ProjectionType: ALL
+#   OrdersTable:
+#     Type: AWS::DynamoDB::Table
+#     Properties:
+#       TableName: Orders
+#       BillingMode: PAY_PER_REQUEST
+#       AttributeDefinitions:
+#         - AttributeName: id
+#           AttributeType: S
+#         - AttributeName: userId
+#           AttributeType: S
+#       KeySchema:
+#         - AttributeName: id
+#           KeyType: HASH
+#       GlobalSecondaryIndexes:
+#         - IndexName: UserIdIndex
+#           KeySchema:
+#             - AttributeName: userId
+#               KeyType: HASH
+#           Projection:
+#             ProjectionType: ALL
 
-  ReviewsTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: Reviews
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-        - AttributeName: productId
-          AttributeType: S
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
-      GlobalSecondaryIndexes:
-        - IndexName: ProductIdIndex
-          KeySchema:
-            - AttributeName: productId
-              KeyType: HASH
-          Projection:
-            ProjectionType: ALL
+#   ReviewsTable:
+#     Type: AWS::DynamoDB::Table
+#     Properties:
+#       TableName: Reviews
+#       BillingMode: PAY_PER_REQUEST
+#       AttributeDefinitions:
+#         - AttributeName: id
+#           AttributeType: S
+#         - AttributeName: productId
+#           AttributeType: S
+#       KeySchema:
+#         - AttributeName: id
+#           KeyType: HASH
+#       GlobalSecondaryIndexes:
+#         - IndexName: ProductIdIndex
+#           KeySchema:
+#             - AttributeName: productId
+#               KeyType: HASH
+#           Projection:
+#             ProjectionType: ALL
 
-  # SNS Topic
-  OrderNotificationsTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      TopicName: OrderNotifications
+#   # SNS Topic
+#   OrderNotificationsTopic:
+#     Type: AWS::SNS::Topic
+#     Properties:
+#       TopicName: OrderNotifications
 
-  # Lambda Functions
-  GetProductByIdFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: src/product
-      Handler: getProductById.handler
-      Events:
-        GetProductById:
-          Type: Api
-          Properties:
-            Path: /products/{id}
-            Method: get
+#   # Lambda Functions
+#   GetProductByIdFunction:
+#     Type: AWS::Serverless::Function
+#     Properties:
+#       CodeUri: src/product
+#       Handler: getProductById.handler
+#       Events:
+#         GetProductById:
+#           Type: Api
+#           Properties:
+#             Path: /products/{id}
+#             Method: get
 
-  GetCartFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: src/cart
-      Handler: getCart.handler
-      Events:
-        GetCart:
-          Type: Api
-          Properties:
-            Path: /cart
-            Method: get
+#   GetCartFunction:
+#     Type: AWS::Serverless::Function
+#     Properties:
+#       CodeUri: src/cart
+#       Handler: getCart.handler
+#       Events:
+#         GetCart:
+#           Type: Api
+#           Properties:
+#             Path: /cart
+#             Method: get
 
-  SaveCartFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: src/cart
-      Handler: saveCart.handler
-      Events:
-        SaveCart:
-          Type: Api
-          Properties:
-            Path: /cart
-            Method: post
+#   SaveCartFunction:
+#     Type: AWS::Serverless::Function
+#     Properties:
+#       CodeUri: src/cart
+#       Handler: saveCart.handler
+#       Events:
+#         SaveCart:
+#           Type: Api
+#           Properties:
+#             Path: /cart
+#             Method: post
 
-  PlaceOrderFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: src/order
-      Handler: placeOrder.handler
-      Events:
-        PlaceOrder:
-          Type: Api
-          Properties:
-            Path: /orders
-            Method: post
-      Policies:
-        - SNSPublishMessagePolicy:
-            TopicName: !GetAtt OrderNotificationsTopic.TopicName 
+#   PlaceOrderFunction:
+#     Type: AWS::Serverless::Function
+#     Properties:
+#       CodeUri: src/order
+#       Handler: placeOrder.handler
+#       Events:
+#         PlaceOrder:
+#           Type: Api
+#           Properties:
+#             Path: /orders
+#             Method: post
+#       Policies:
+#         - SNSPublishMessagePolicy:
+#             TopicName: !GetAtt OrderNotificationsTopic.TopicName 

@@ -1,13 +1,13 @@
 const { handler } = require('../../admin/deleteProduct');
 const { ddbMock } = require('../helpers/aws-mock');
-const { GetCommand, DeleteCommand } = require('@aws-sdk/lib-dynamodb');
+const { GetCommand, DeleteCommand, UpdateCommand } = require('@aws-sdk/lib-dynamodb');
 
 describe('deleteProduct Lambda Function', () => {
   beforeEach(() => {
     ddbMock.reset();
   });
 
-  test('should delete a product successfully', async () => {
+  test('should delete a product successfully when never ordered', async () => {
     const event = {
       requestContext: {
         authorizer: {
@@ -21,21 +21,51 @@ describe('deleteProduct Lambda Function', () => {
       }
     };
 
-    // Mock DynamoDB get operation to check if product exists
     ddbMock.on(GetCommand).resolves({
       Item: {
         productId: 'test-product',
-        name: 'Test Product'
+        name: 'Test Product',
+        timesOrdered: 0
       }
     });
 
-    // Mock DynamoDB delete operation
     ddbMock.on(DeleteCommand).resolves({});
 
     const response = await handler(event);
     expect(response.statusCode).toBe(200);
     expect(JSON.parse(response.body)).toEqual({
       message: 'Product deleted successfully'
+    });
+  });
+
+  test('should deactivate product when it has been ordered', async () => {
+    const event = {
+      requestContext: {
+        authorizer: {
+          claims: {
+            'custom:role': 'admin'
+          }
+        }
+      },
+      pathParameters: {
+        id: 'test-product'
+      }
+    };
+
+    ddbMock.on(GetCommand).resolves({
+      Item: {
+        productId: 'test-product',
+        name: 'Test Product',
+        timesOrdered: 1
+      }
+    });
+
+    ddbMock.on(UpdateCommand).resolves({});
+
+    const response = await handler(event);
+    expect(response.statusCode).toBe(200);
+    expect(JSON.parse(response.body)).toEqual({
+      message: 'Product deactivated successfully'
     });
   });
 
@@ -57,6 +87,39 @@ describe('deleteProduct Lambda Function', () => {
     expect(response.statusCode).toBe(403);
     expect(JSON.parse(response.body)).toEqual({
       error: 'Unauthorized: Admin access required'
+    });
+  });
+
+  test('should return 403 when authorization context is missing', async () => {
+    const event = {
+      pathParameters: {
+        id: 'test-product'
+      }
+    };
+
+    const response = await handler(event);
+    expect(response.statusCode).toBe(403);
+    expect(JSON.parse(response.body)).toEqual({
+      error: 'Unauthorized: Admin access required'
+    });
+  });
+
+  test('should return 400 when product ID is missing', async () => {
+    const event = {
+      requestContext: {
+        authorizer: {
+          claims: {
+            'custom:role': 'admin'
+          }
+        }
+      },
+      pathParameters: {}
+    };
+
+    const response = await handler(event);
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body)).toEqual({
+      error: 'Product ID is required'
     });
   });
 
@@ -83,7 +146,7 @@ describe('deleteProduct Lambda Function', () => {
     });
   });
 
-  test('should handle DynamoDB errors', async () => {
+  test('should handle DynamoDB errors during get operation', async () => {
     const event = {
       requestContext: {
         authorizer: {
@@ -98,6 +161,37 @@ describe('deleteProduct Lambda Function', () => {
     };
 
     ddbMock.on(GetCommand).rejects(new Error('DynamoDB Error'));
+
+    const response = await handler(event);
+    expect(response.statusCode).toBe(500);
+    expect(JSON.parse(response.body)).toEqual({
+      error: 'Internal server error'
+    });
+  });
+
+  test('should handle DynamoDB errors during delete operation', async () => {
+    const event = {
+      requestContext: {
+        authorizer: {
+          claims: {
+            'custom:role': 'admin'
+          }
+        }
+      },
+      pathParameters: {
+        id: 'test-product'
+      }
+    };
+
+    ddbMock.on(GetCommand).resolves({
+      Item: {
+        productId: 'test-product',
+        name: 'Test Product',
+        timesOrdered: 0
+      }
+    });
+
+    ddbMock.on(DeleteCommand).rejects(new Error('DynamoDB Error'));
 
     const response = await handler(event);
     expect(response.statusCode).toBe(500);
