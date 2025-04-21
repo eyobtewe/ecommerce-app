@@ -4,6 +4,12 @@ const {
   Context
 } = require('aws-lambda');
 
+// Middleware functions for handling authentication and error handling in AWS Lambda functions
+// AppError class is used to represent application-specific errors
+// withAuth middleware ensures the user is authenticated before proceeding
+// withErrorHandling middleware catches and formats errors for consistent API responses
+// formatResponse is a utility function to standardize API responses
+
 /**
  * @typedef {function(APIGatewayProxyHandler): APIGatewayProxyHandler} Middleware
  */
